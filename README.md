@@ -1,8 +1,15 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
-
 ## Getting Started
 
-First, run the development server:
+Pertama buat akun firestore.
+set di projek .env.local
+
+FIREBASE_PROJECT_ID
+FIREBASE_CLIENT_EMAIL
+FIREBASE_PRIVATE_KEY
+
+Kalau sudah tinggal buat collection sesuai projek. dan its done ;))
+
+## Jalankan server:
 
 ```bash
 npm run dev
