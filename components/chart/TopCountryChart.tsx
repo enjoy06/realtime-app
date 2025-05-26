@@ -55,7 +55,10 @@ export default function TopCountryChart({ countryData }: TopCountryChartProps) {
   };
 
   return (
-    <Card className="rounded-2xl shadow-lg transition hover:shadow-2xl">
+    <Card className="rounded-2xl shadow-lg transition hover:shadow-2xl 
+      bg-gradient-to-r from-blue-200 via-cyan-100 to-cyan-50 dark:text-white
+      dark:bg-gradient-to-r dark:from-zinc-800 dark:via-zinc-900 dark:to-zinc-700"
+    >
       <CardContent className="p-4">
         <h2 className="font-semibold text-lg mb-2">Top Country</h2>
         <div className="relative w-full max-w-sm h-64 mx-auto">

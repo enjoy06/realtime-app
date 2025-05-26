@@ -4,41 +4,63 @@ import { NextApiRequest, NextApiResponse } from 'next';
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
   const socket = res.socket;
 
-  // Check if socket is not null
   if (!socket) {
     res.status(500).json({ success: false, message: 'Socket tidak tersedia' });
     return;
   }
 
-  // Type assertion to tell TypeScript that socket is not null
   const anySocket = socket as any;
 
   if (!anySocket.server.io) {
-    console.log('Memulai WebSocket server');
+    console.log('🔌 Memulai WebSocket server');
 
     const io = new Server(anySocket.server, {
-      path: '/api/socket', // Set path for WebSocket server
+      path: '/api/socket',
     });
 
     io.on('connection', (socket) => {
-      console.log('Client terhubung');
-      
-      socket.on('message', (msg) => {
-        console.log('Pesan diterima:', msg);
+      console.log('✅ Client terhubung');
 
-        // Send message to all connected clients
+      socket.on('message', (msg) => {
+        console.log('📩 Pesan diterima:', msg);
         io.emit('message', msg);
       });
 
+      // Ketika ada event user klik
+      socket.on('user-klik', (data) => {
+        const enrichedData = {
+          message: `User ${data.user} melakukan klik`,
+          detail: {
+            user: data.user,
+            country: data.country,
+            source: data.source,
+            gadget: data.gadget,
+            ip: data.ip,
+          },
+          clickedAt: new Date().toISOString(),
+        };
+
+        console.log('⚡ user-klik diterima:', enrichedData);
+
+        // Broadcast ke semua client kecuali pengirim
+        socket.broadcast.emit('user-klik', enrichedData);
+      });
+
       socket.on('disconnect', () => {
-        console.log('Client terputus');
+        console.log('❌ Client terputus');
       });
     });
 
     anySocket.server.io = io;
   } else {
-    console.log('WebSocket server sudah berjalan');
+    console.log('ℹ️ WebSocket server sudah berjalan');
   }
 
   res.end();
 }
+
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};

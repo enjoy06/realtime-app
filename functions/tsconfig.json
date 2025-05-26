@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "lib": ["ES2020"], // jangan pakai "DOM"
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "outDir": "lib",
+    "rootDir": "src",
+    "strict": true,
+    "esModuleInterop": true,
+    "sourceMap": true,
+    "types": [] // kosongkan agar tidak ambil dari global types seperti React
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["../node_modules", "../**/*.tsx"]
+}

@@ -13,6 +13,6 @@ export const ClientDate: FC<Props> = ({ date }) => {
     second: "2-digit",
   });
 
-  return <>{formatted || "Loading..."}</>;
+  return <>{formatted.replaceAll('.',':') || "Loading..."}</>;
 
 };

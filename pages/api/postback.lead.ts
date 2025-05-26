@@ -43,11 +43,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       if (!sendData) {
         return res.status(500).json({ error: 'Failed to save lead data' });
       }
-      const io = (res.socket as any).server.io;
-      io.emit('user-lead', { 
-        message: 'Menerima lead!', 
-        sub: decodedClick, 
-        earning: parseFloat(earning as string)
+      const io = (res.socket as any)?.server?.io;
+      io?.emit('user-lead', { 
+        message: `User: ${sub} Lead received successfully..!`,
+        data: { ...leadData }
       });
 
       return res.status(200).json({ message: 'Lead received successfully' });

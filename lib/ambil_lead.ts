@@ -55,9 +55,6 @@ export async function fetchDashboardData() {
       created_at: data.created_at.toDate(),
     });
 
-    // Count for live clicks
-    //liveClicks += 1;
-
     // Top country
     if (data.country) {
       countryCount[data.country] = (countryCount[data.country] || 0) + 1;
@@ -75,10 +72,46 @@ export async function fetchDashboardData() {
     .sort((a, b) => b.total - a.total)
     .slice(0, 5);
 
+  //get summary user!
+  const getSummary = await getDocs(
+    query(collection(db, "user_summary"), orderBy("created_at", "desc"), limit(15))
+  );
+  const summary: { id: string; user: string; total_earning: any; total_click: any; created_at: any; }[] = [];
+    getSummary.forEach((doc) => {
+        const data = doc.data();
+        summary.push({
+          id: doc.id,
+          user: data.user,
+          total_earning: data.total_earning,
+          total_click: data.total_click,
+          created_at: data.created_at.toDate(),
+        });
+    });
+
+  //get Live clicks
+  const getLiveClicks = await getDocs(
+    query(collection(db, "live_clicks"), orderBy("created_at", "desc"), limit(15))
+  );
+  const liveClicks: { id: string; user: string; country: any; source: any; gadget: string; ip: any; created_at: any; }[] = [];
+  getLiveClicks.forEach((doc) => {
+    const data = doc.data();
+    liveClicks.push({
+      id: doc.id,
+      user: data.user,
+      country: data.country,
+      source: data.source,
+      gadget: data.gadget,
+      ip: data.ip,
+      created_at: data.created_at.toDate(),
+    });
+  });
+
   return {
     topUsers,
     leads,
     clicks,
+    liveClicks,
+    summary,
     countryData: countryCount,
     topLeads,
     infoString: `Total leads: ${leads.length}`,

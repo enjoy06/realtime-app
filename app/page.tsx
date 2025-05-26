@@ -1,4 +1,4 @@
-import DashboardPage from "@/components/page/realtime";
+import DashboardPage from "@/components/pages/realtime";
 import { fetchDashboardData } from "@/lib/ambil_lead";
 
 export default async function Page() {
