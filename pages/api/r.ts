@@ -47,6 +47,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   const sub = Array.isArray(req.query.sub) ? req.query.sub[0] : (req.query.sub ?? 'unknown');
   const userId = sub;
+  const cekUser = await write
+    .collection('users')
+    .where('username', '==', sub)
+    .limit(1)
+    .get();
+
+  if (cekUser.empty) {
+    return res.status(404).json({ error: `User ${sub} not found !!! clicks is not valid!` });
+  }
 
   const sourceType =
     userAgent.includes("Instagram") ? "instagram"

@@ -223,7 +223,7 @@ export function RealtimeTab({ data }: { data: DashboardData }) {
             {data.topLeads.length === 0 ? (
               <p className="text-sm text-gray-500 dark:text-white-400">No leads available.</p>
             ) : (
-              <ul className="space-y-1 text-zinc-700 dark:text-black-200">
+              <ul className="font-mono text-2xl space-y-1 text-zinc-700 dark:text-white">
                 {data.topLeads.map((lead, i) => (
                   <li key={i}>
                     {i + 1}. {lead.name} - ${lead.total.toFixed(2)}

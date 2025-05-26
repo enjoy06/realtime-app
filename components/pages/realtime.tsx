@@ -46,6 +46,9 @@ interface Summary {
   total_earning: number;
   total_click: number;
   created_at: Date;
+  created_date: string; // format: "2025-05-26"
+  created_hour: string;
+  created_week: string;
 }
 
 interface DashboardProps {
@@ -61,14 +64,26 @@ interface DashboardProps {
 
 export default function DashboardPage(props: DashboardProps) {
   const [dashboardData, setDashboardData] = useState<DashboardProps>(props);
-  
+  const [selectedTab, setSelectedTab] = useState<string>("realtime"); // track tab aktif
+
+    useEffect(() => {
+      // Fetch data ulang tiap kali tab berubah
+      async function refreshData() {
+        const newData = await fetchDashboardData();
+        setDashboardData(newData);
+      }
+
+      refreshData();
+    }, [selectedTab]);
+
     useEffect(() => {
 
     //Initial websocket!
+    fetch("/api/socket");
     const socket = io('http://localhost:3000', {
       path: '/api/socket',
-      transports: ['websocket'],
-      upgrade: false,
+      // transports: ['websocket'],
+      // upgrade: false,
     });
 
     socket.on("user-lead", (data) => {
@@ -117,7 +132,7 @@ export default function DashboardPage(props: DashboardProps) {
   <div className="flex-grow p-6 flex justify-center">
     <div className="w-full max-w-screen-xl space-y-6">
       {/* Tabs */}
-      <Tabs defaultValue="realtime">
+      <Tabs value={selectedTab} onValueChange={setSelectedTab} defaultValue="realtime">
         {/* Navbar */}
         <nav className="sticky top-0 z-50 bg-white dark:bg-zinc-900 flex justify-between items-center border-b pb-4">
           <div className="flex items-center space-x-2">

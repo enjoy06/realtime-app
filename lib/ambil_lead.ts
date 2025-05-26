@@ -76,7 +76,7 @@ export async function fetchDashboardData() {
   const getSummary = await getDocs(
     query(collection(db, "user_summary"), orderBy("created_at", "desc"), limit(15))
   );
-  const summary: { id: string; user: string; total_earning: any; total_click: any; created_at: any; }[] = [];
+  const summary: { id: string; user: string; total_earning: any; total_click: any; created_at: any; created_date: any; created_hour: any; created_week: any; }[] = [];
     getSummary.forEach((doc) => {
         const data = doc.data();
         summary.push({
@@ -85,6 +85,9 @@ export async function fetchDashboardData() {
           total_earning: data.total_earning,
           total_click: data.total_click,
           created_at: data.created_at.toDate(),
+          created_date: data.created_date,
+          created_hour: data.created_hour,
+          created_week: data.created_week,
         });
     });
 

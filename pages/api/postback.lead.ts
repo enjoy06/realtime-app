@@ -29,6 +29,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
 
       const [sub, country, useragent, ip] = parts;
+      const cekUser = await db
+        .collection('users')
+        .where('username', '==', sub)
+        .limit(1)
+        .get();
+
+      if (cekUser.empty) {
+        return res.status(404).json({ error: `User ${sub} not found in users collection` });
+      }
 
       const leadData: LeadData = {
         userId: sub,

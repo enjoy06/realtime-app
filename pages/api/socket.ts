@@ -15,7 +15,11 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     console.log('🔌 Memulai WebSocket server');
 
     const io = new Server(anySocket.server, {
-      path: '/api/socket',
+        path: '/api/socket',
+        cors: {
+          origin: "*", // ganti dengan origin client kamu jika perlu
+          methods: ["GET", "POST"]
+        },
     });
 
     io.on('connection', (socket) => {
