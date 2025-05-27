@@ -32,24 +32,13 @@ export default function DashboardPage(props: any) {
       transports: ["websocket"],
     });
 
-    // Emit an event to test the connection
-    axios.post(`${process.env.NEXT_PUBLIC_SOCKET_URL}/broadcast`, {
-      event: "user-klik",
-      payload: {
-        message: "Test dari axios",
-      },
-    }).then(() => {
-      console.log("✅ Broadcast berhasil");
-    }).catch((err) => {
-      console.error("❌ Broadcast gagal", err);
-    });
-
     socket.on("user-lead", async () => {
       const newData = await fetchDashboardData();
       setDashboardData(newData);
     });
 
-    socket.on("user-klik", async () => {
+    socket.on("user-klik", async (payload) => {
+      console.log("📥 Event 'user-klik' diterima:", payload);
       const result = await fetchLiveClicks();
       setDashboardData((prev: any) => ({ ...prev, liveClicks: result.clicks }));
     });
