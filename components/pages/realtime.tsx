@@ -1,117 +1,46 @@
 "use client";
 
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useEffect, useState } from "react";
 import { io } from "socket.io-client";
-import { fetchDashboardData } from "@/lib/ambil_lead";
-import { fetchLiveClicks } from "@/lib/get_klik";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { RealtimeTab } from "./dashboard";
 import { StatsRealtime } from "./stats";
 import { SummaryRealtime } from "./summary";
+import { fetchDashboardData } from "@/lib/ambil_lead";
+import { fetchLiveClicks } from "@/lib/get_klik";
 
-// Types
-interface User {
-  username: string;
-  sum: number;
-}
+export default function DashboardPage(props: any) {
+  const [dashboardData, setDashboardData] = useState(props);
+  const [selectedTab, setSelectedTab] = useState("realtime");
+  const [menuOpen, setMenuOpen] = useState(false);
 
-interface Click {
-  id: string;
-  user: string;
-  country: string;
-  source: string;
-  gadget: string;
-  ip: string;
-  created_at: Date;
-}
+  useEffect(() => {
+    async function refreshData() {
+      const newData = await fetchDashboardData();
+      setDashboardData(newData);
+    }
+    refreshData();
+  }, [selectedTab]);
 
-interface Lead {
-  id: string;
-  userId: string;
-  country: string;
-  useragent: string;
-  ip: string;
-  earning: number;
-  created_at: any;
-}
-
-interface TopLead {
-  name: string;
-  total: number;
-}
-
-interface Summary {
-  id: string;
-  user: string;
-  total_earning: number;
-  total_click: number;
-  created_at: Date;
-  created_date: string;
-  created_hour: string;
-  created_week: string;
-}
-
-interface DashboardProps {
-  summary: Summary[];
-  clicks: Click[];
-  liveClicks: Click[];
-  topUsers: User[];
-  leads: Lead[];
-  infoString: string;
-  countryData: Record<string, number>;
-  topLeads: TopLead[];
-}
-
-export default function DashboardPage(props: DashboardProps) {
-  const [dashboardData, setDashboardData] = useState<DashboardProps>(props);
-  const [selectedTab, setSelectedTab] = useState<string>("realtime"); // track tab aktif
-
-    useEffect(() => {
-      // Fetch data ulang tiap kali tab berubah
-      async function refreshData() {
-        const newData = await fetchDashboardData();
-        setDashboardData(newData);
-      }
-
-      refreshData();
-    }, [selectedTab]);
-
-    useEffect(() => {
-
-    //Initial websocket!
+  useEffect(() => {
     fetch("/api/socket");
-    const socket = io('http://localhost:3000', {
-      path: '/api/socket',
-      // transports: ['websocket'],
-      // upgrade: false,
+    const socket = io("http://localhost:3000", {
+      path: "/api/socket",
     });
 
-    socket.on("user-lead", (data) => {
-      console.log("Alhamdulillah Lead baru:", data);
-      setTimeout(async () => {
-        const newData = await fetchDashboardData();
-        setDashboardData(newData); // ⬅️ Trigger re-render
-      }, 500);
+    socket.on("user-lead", async () => {
+      const newData = await fetchDashboardData();
+      setDashboardData(newData);
     });
 
-    socket.on("user-klik", (data) => {
-      console.log("🚀 Data klik baru:", data);
-      // bisa fetch ulang data atau push ke state
-      setTimeout(async () => {
-        const result = await fetchLiveClicks(); // hasilnya { clicks: [...] }
-        setDashboardData((prev) => ({
-          ...prev,
-          liveClicks: result.clicks, // ambil hanya array-nya
-        }));
-      }, 500);
+    socket.on("user-klik", async () => {
+      const result = await fetchLiveClicks();
+      setDashboardData((prev: any) => ({ ...prev, liveClicks: result.clicks }));
     });
 
     const interval = setInterval(async () => {
-      const result = await fetchLiveClicks(); // hasilnya { clicks: [...] }
-        setDashboardData((prev) => ({
-          ...prev,
-          liveClicks: result.clicks, // ambil hanya array-nya
-        }));
+      const result = await fetchLiveClicks();
+      setDashboardData((prev: any) => ({ ...prev, liveClicks: result.clicks }));
     }, 60000);
 
     socket.on("connect", () => console.log("Connected"));
@@ -128,46 +57,94 @@ export default function DashboardPage(props: DashboardProps) {
   }, []);
 
   return (
-  <div className="min-h-screen flex flex-col bg-white dark:bg-zinc-900 transition-colors">
-  <div className="flex-grow p-6 flex justify-center">
-    <div className="w-full max-w-screen-xl space-y-6">
-      {/* Tabs */}
-      <Tabs value={selectedTab} onValueChange={setSelectedTab} defaultValue="realtime">
-        {/* Navbar */}
-        <nav className="sticky top-0 z-50 bg-white dark:bg-zinc-900 flex justify-between items-center border-b pb-4">
-          <div className="flex items-center space-x-2">
-            <h1 className="text-3xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-purple-500 to-pink-500">
+    <div className="min-h-screen flex flex-col bg-white dark:bg-zinc-900 transition-colors">
+      <Tabs value={selectedTab} onValueChange={setSelectedTab}>
+        {/* Navbar utama */}
+        <nav className="sticky top-0 z-[20000] bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-700 px-4 py-3 flex items-center justify-between">
+          {/* Logo + Hamburger (kiri) */}
+          <div className="flex items-center space-x-4">
+            {/* Hamburger button mobile */}
+            <button
+              className="sm:hidden p-2 rounded-md hover:bg-zinc-200 dark:hover:bg-zinc-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              aria-label="Toggle menu"
+              onClick={() => {
+                setMenuOpen((open) => !open);
+                window.scrollTo({ top: 0, behavior: "smooth" }); // scroll ke atas saat klik hamburger
+              }}
+            >
+              <svg
+                className="w-6 h-6 text-zinc-900 dark:text-zinc-100"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                viewBox="0 0 24 24"
+              >
+                <path d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+
+            {/* Logo */}
+            <div className="text-xl font-bold bg-gradient-to-r from-blue-600 via-purple-500 to-pink-500 bg-clip-text text-transparent select-none">
               BALANESOHIB
-            </h1>
+            </div>
           </div>
-          <TabsList className="mt-2 w-15 justify-start space-x-2 bg-gradient-to-r from-blue-500 via-purple-500 to-amber-500 text-white dark:bg-zinc-800 dark:text-zinc-300 p-2 rounded-xl">
+
+          {/* Tabs desktop (kanan) */}
+          <TabsList className="hidden sm:flex space-x-6 text-zinc-900 dark:text-zinc-100">
             <TabsTrigger value="realtime">Realtime</TabsTrigger>
             <TabsTrigger value="stats">Stats</TabsTrigger>
             <TabsTrigger value="leads">Leads</TabsTrigger>
           </TabsList>
         </nav>
 
-        <TabsContent value="realtime">
-          <RealtimeTab data={dashboardData} />
-        </TabsContent>
+        {/* Mobile menu (bawah navbar) */}
+        {menuOpen && (
+          <TabsList className="sm:hidden flex flex-col items-start bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-700">
+            <TabsTrigger
+              value="realtime"
+              className="p-3 border-b border-zinc-200 dark:border-zinc-700"
+              onClick={() => setMenuOpen(false)}
+            >
+              Realtime
+            </TabsTrigger>
+            <TabsTrigger
+              value="stats"
+              className="p-3 border-b border-zinc-200 dark:border-zinc-700"
+              onClick={() => setMenuOpen(false)}
+            >
+              Stats
+            </TabsTrigger>
+            <TabsTrigger
+              value="leads"
+              className="p-3"
+              onClick={() => setMenuOpen(false)}
+            >
+              Leads
+            </TabsTrigger>
+          </TabsList>
+        )}
 
-        <TabsContent value="stats">
-          <StatsRealtime data={dashboardData} />
-        </TabsContent>
-
-        <TabsContent value="leads">
-          <SummaryRealtime data={dashboardData} />
-        </TabsContent>
+        {/* Konten tab */}
+        <main className="flex-grow p-4">
+          <TabsContent value="realtime">
+            <RealtimeTab data={dashboardData} />
+          </TabsContent>
+          <TabsContent value="stats">
+            <StatsRealtime data={dashboardData} />
+          </TabsContent>
+          <TabsContent value="leads">
+            <SummaryRealtime data={dashboardData} />
+          </TabsContent>
+        </main>
       </Tabs>
+
+      {/* Footer */}
+      <footer className="border-t border-zinc-200 dark:border-zinc-700 py-4 text-center text-sm text-zinc-500 dark:text-zinc-400">
+        Powered by{" "}
+        <span className="font-semibold text-zinc-700 dark:text-zinc-200">- ZDEV</span>
+      </footer>
     </div>
-  </div>
-
-  {/* Footer */}
-  <footer className="border-t border-zinc-200 dark:border-zinc-700 py-4 text-center text-sm text-zinc-500 dark:text-zinc-400">
-    Powered by <span className="font-semibold text-zinc-700 dark:text-zinc-200">- ZDEV</span>
-  </footer>
-</div>
-
-);
-
+  );
 }

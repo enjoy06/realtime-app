@@ -203,6 +203,7 @@ export function RealtimeTab({ data }: { data: DashboardData }) {
             </tbody>
         </table>
     </div>
+
     {/* Chart & Top Leads */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
         <TopCountryChart countryData={data.countryData} />
@@ -226,6 +227,7 @@ export function RealtimeTab({ data }: { data: DashboardData }) {
           </CardContent>
         </Card>
       </div>
+      
     </div>
   );
 }

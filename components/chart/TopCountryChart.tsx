@@ -62,7 +62,7 @@ export default function TopCountryChart({ countryData }: TopCountryChartProps) {
     >
       <CardContent className="p-4">
         <h2 className="font-semibold text-lg mb-2">Top Country</h2>
-        <div className="relative w-full max-w-sm h-64 mx-auto">
+        <div className="relative w-48 h-48 sm:w-full sm:h-64 mx-auto">
           <Doughnut data={data} options={options} />
         </div>
       </CardContent>
