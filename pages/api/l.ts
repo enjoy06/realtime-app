@@ -54,12 +54,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return res.status(500).json({ error: 'Failed to save lead data' });
       }
 
-      // const io = (res.socket as any)?.server?.io;
-      // io?.emit('user-lead', { 
-      //   message: `User: ${sub} Lead received successfully..!`,
-      //   data: { ...leadData }
-      // });
-
       await axios.post(`${process.env.NEXT_PUBLIC_SOCKET_URL}/broadcast`, {
         event: "user-klik",
         payload: {

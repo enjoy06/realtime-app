@@ -8,6 +8,7 @@ import {
 import { Timestamp } from 'firebase-admin/firestore';
 import { NextApiRequest, NextApiResponse } from 'next';
 import dayjs from 'dayjs';
+import axios from 'axios';
 
 interface ClickData {
   user: string;
@@ -69,14 +70,23 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   try {
     // Emit ke socket (opsional)
-    const io = (res.socket as any)?.server?.io;
-    io?.emit('user-klik', {
-      message: `User: ${sub} Connected successfully..!`,
-      data: sub,
-      ip,
-      gadget,
-      source: sourceType,
+    // const io = (res.socket as any)?.server?.io;
+    // io?.emit('user-klik', {
+    //   message: `User: ${sub} Connected successfully..!`,
+    //   data: sub,
+    //   ip,
+    //   gadget,
+    //   source: sourceType,
+    // });
+
+    await axios.post(`${process.env.NEXT_PUBLIC_SOCKET_URL}/broadcast`, {
+      event: "user-klik",
+      payload: {
+        message: `User: ${sub} Connected successfully..!`,
+        data: {sub, ip, gadget, source: sourceType},
+      }
     });
+
 
     const clickPayload: ClickData = {
       user: sub,
