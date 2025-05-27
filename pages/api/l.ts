@@ -55,7 +55,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
 
       await axios.post(`${process.env.NEXT_PUBLIC_SOCKET_URL}/broadcast`, {
-        event: "user-klik",
+        event: "user-lead",
         payload: {
           message: `User: ${sub} Lead received..!`,
           data: { ...leadData },
