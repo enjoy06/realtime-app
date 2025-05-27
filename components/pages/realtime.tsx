@@ -30,6 +30,8 @@ export default function DashboardPage(props: any) {
     // });
     const socket = io(process.env.NEXT_PUBLIC_SOCKET_URL, {
       transports: ["websocket"],
+      secure: true,
+      autoConnect: true,
     });
 
     socket.on("user-lead", async (payload) => {
@@ -53,15 +55,18 @@ export default function DashboardPage(props: any) {
       setDashboardData((prev: any) => ({ ...prev, liveClicks: result.clicks }));
     }, 60000);
 
-    socket.on("connect", () => console.log("Connected"));
-    socket.on("disconnect", () => console.log("Disconnected"));
-    socket.on("connect_error", (err) => {
-      console.error("Connection error:", err);
+    socket.on("connect", () => {
+      console.log("✅ Connected to WebSocket");
     });
+    socket.on("connect_error", (err) => {
+      console.error("❌ Connection error:", err);
+    });
+    socket.on("disconnect", () => console.log("Disconnected"));
 
     return () => {
       clearInterval(interval);
       socket.off("user-klik");
+      socket.off("user-lead");
       socket.close();
     };
   }, []);
