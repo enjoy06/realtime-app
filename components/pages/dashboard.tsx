@@ -87,12 +87,12 @@ export function RealtimeTab({ data }: { data: DashboardData }) {
                     </div>
 
                     {/* User */}
-                    <div className="flex-grow truncate font-mono text-cyan-500 text-base sm:text-lg px-2">
+                    <div className="flex-grow font-mono text-cyan-500 dark:text-teal-300 text-base sm:text-lg">
                     {click.user}
                     </div>
 
                     {/* Device Icon */}
-                    <div className="flex-shrink-0 w-8 text-xl px-2">
+                    <div className="flex-shrink-0 w-8 text-xl">
                     {click.source.match(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/) ? (
                         <RiSmartphoneLine />
                     ) : (
@@ -101,12 +101,12 @@ export function RealtimeTab({ data }: { data: DashboardData }) {
                     </div>
 
                     {/* IP */}
-                    <div className="flex-grow font-serif text-zinc-600 dark:text-teal-300 text-base truncate px-2">
+                    <div className="flex-grow font-serif text-zinc-600 dark:text-teal-300 text-base sm:text-nowrap">
                     {click.ip}
                     </div>
 
                     {/* Browser Icon (optional) */}
-                    <div className="flex-shrink-0 w-8 text-center text-xs text-zinc-500 px-2">
+                    <div className="flex-shrink-0 w-8 text-center text-3xl text-zinc-500 px-1">
                     {click.gadget.includes("chrome") && (
                         <Image src={"/safari.svg"} alt="Browser Icon" width={25} height={25} />
                     )}

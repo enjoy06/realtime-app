@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { io } from "socket.io-client";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { RealtimeTab } from "./dashboard";
@@ -58,6 +58,17 @@ export default function DashboardPage(props: any) {
       socket.off("disconnect");
       socket.close();
     };
+  }, []);
+
+  useEffect(() => {
+    // Interval untuk memperbarui data klik secara live
+    const interval = setInterval(async () => {
+      console.log("Mengambil data klik live...");
+      // Ambil data klik live setiap 60 detik
+      const result = await fetchLiveClicks();
+      setDashboardData((prev: any) => ({ ...prev, liveClicks: result.clicks }));
+    }, 60000); // Update setiap 60 detik
+    return () => clearInterval(interval);
   }, []);
 
   // useEffect(() => {
