@@ -8,6 +8,7 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
+import { FcBarChart, FcFlashOn } from "react-icons/fc";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -58,10 +59,14 @@ export default function TopCountryChart({ countryData }: TopCountryChartProps) {
     <Card className="rounded-2xl shadow-lg transition hover:shadow-2xl 
       bg-gradient-to-r from-blue-200 via-cyan-100 to-cyan-50 dark:text-white
       dark:bg-gradient-to-r dark:from-zinc-800 dark:via-zinc-900 dark:to-zinc-700
-      hover:bg-gradient-to-r hover:from-blue-300 hover:via-cyan-200 hover:to-cyan-100"
+      hover:bg-gradient-to-r hover:from-blue-300 hover:via-cyan-200 hover:to-cyan-100
+      dark:hover:bg-gradient-to-r dark:hover:from-slate-900 dark:hover:via-slate-800 dark:hover:to-slate-950"
     >
+      <div className="flex items-start justify-start gap-2 mb-4 p-0">
+        <FcBarChart className="text-2xl text-blue-500 animate-pulse" />
+        <h2 className="font-mono text-1xl text-zinc-800 dark:text-white">Top Country</h2>
+      </div>
       <CardContent className="p-4">
-        <h2 className="font-semibold text-lg mb-2">Top Country</h2>
         <div className="relative w-48 h-48 sm:w-full sm:h-64 mx-auto">
           <Doughnut data={data} options={options} />
         </div>

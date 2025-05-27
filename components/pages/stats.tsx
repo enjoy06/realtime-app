@@ -4,6 +4,7 @@ import ReactCountryFlag from "react-country-flag";
 import { ClientDate } from "./clientDate";
 import { FaComputer } from "react-icons/fa6";
 import { RiSmartphoneLine } from "react-icons/ri";
+import { useState } from "react";
 
 // Types
 interface Click {
@@ -21,8 +22,27 @@ interface DashboardData {
 }
 
 export function StatsRealtime({ data }: { data: DashboardData }) {
+  
+  const [searchUser, setSearchUser] = useState("");
+  
+  const filteredClicks = data.clicks.filter((click) =>
+    click.user.toLowerCase().includes(searchUser.toLowerCase())
+  );
+
   return (
-    <div className="pt-6 space-y-6">
+    <div className="pt-0 space-y-6">
+
+    {/* Search Input */}
+      <div className="w-full">
+        <input
+          type="text"
+          placeholder="Search user..."
+          value={searchUser}
+          onChange={(e) => setSearchUser(e.target.value)}
+          className="w-full rounded-md border border-zinc-300 dark:border-zinc-600 px-3 py-2 text-sm dark:bg-zinc-800 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+      </div>
+
     {/* Clicks Table */}
     <div className="overflow-x-auto rounded-xl shadow-md mt-4 border border-zinc-200 dark:border-zinc-700">
       <table className="table-auto min-w-full text-sm text-left divide-y divide-zinc-200 dark:divide-zinc-700">
@@ -31,70 +51,74 @@ export function StatsRealtime({ data }: { data: DashboardData }) {
             <th className="px-4 py-3 whitespace-nowrap">user</th>
             <th className="px-4 py-3 whitespace-nowrap">From</th>
             <th className="px-4 py-3 whitespace-nowrap">S</th>
-            <th className="px-4 py-3 whitespace-nowrap max-w-[250px]">Source</th>
+            <th className="px-4 py-3 whitespace-nowrap max-w-[250px]">UA</th>
             <th className="px-4 py-3 whitespace-nowrap">IP</th>
             <th className="px-4 py-3 whitespace-nowrap hidden sm:table-cell">Time</th>
           </tr>
         </thead>
-        <tbody>
-          {data.clicks.map((click, i) => (
-            <tr
-              key={click.id}
-              className={`transition-colors duration-200 cursor-default ${
-                i % 2 === 0
-                  ? 'bg-cyan-50 dark:bg-zinc-900'
-                  : 'bg-cyan-100 dark:bg-zinc-800'
-              } hover:bg-blue-100 dark:hover:bg-blue-900`}
-            >
-              {/* User */}
-              <td className="px-4 py-3 font-medium text-zinc-900 dark:text-zinc-100 whitespace-nowrap">
-                {click.user}
-              </td>
-
-              {/* Country */}
-              <td className="px-4 py-3 flex items-center gap-2">
-                <ReactCountryFlag
-                  countryCode={click.country || 'XX'}
-                  svg
-                  style={{
-                    width: '1.5em',
-                    height: '1em',
-                    borderRadius: '3px',
-                    boxShadow: '0 0 2px rgba(0,0,0,0.2)',
-                  }}
-                  title={click.country}
-                />
-              </td>
-
-              {/* Device */}
-              <td className="px-4 py-3 text-center text-xl text-zinc-600 dark:text-zinc-400">
-                {click.source.match(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/) ? (
-                  <RiSmartphoneLine />
-                ) : (
-                  <FaComputer />
-                )}
-              </td>
-
-              {/* Source */}
-              <td
-                className="px-4 py-3 max-w-[250px] truncate text-zinc-700 dark:text-zinc-300 text-sm select-text"
-                title={click.source}
+         <tbody>
+            {filteredClicks.map((click, i) => (
+              <tr
+                key={click.id}
+                className={`transition-colors duration-200 cursor-default ${
+                  i % 2 === 0
+                    ? "bg-cyan-50 dark:bg-zinc-900"
+                    : "bg-cyan-100 dark:bg-zinc-800"
+                } hover:bg-blue-100 dark:hover:bg-blue-900`}
               >
-                {click.source.length > 75 ? click.source.slice(0, 75) + '…' : click.source}
-              </td>
+                {/* User */}
+                <td className="px-4 py-3 font-medium text-zinc-900 dark:text-zinc-100 whitespace-nowrap">
+                  {click.user}
+                </td>
 
-              {/* IP */}
-              <td className="px-4 py-3 font-mono text-zinc-800 dark:text-zinc-200 whitespace-nowrap">
-                {click.ip}
-              </td>
+                {/* Country */}
+                <td className="px-4 py-3 flex items-center gap-2">
+                  <ReactCountryFlag
+                    countryCode={click.country || "XX"}
+                    svg
+                    style={{
+                      width: "1.5em",
+                      height: "1em",
+                      borderRadius: "3px",
+                      boxShadow: "0 0 2px rgba(0,0,0,0.2)",
+                    }}
+                    title={click.country}
+                  />
+                </td>
 
-              {/* Time */}
-              <td className="px-4 py-3 text-zinc-600 dark:text-zinc-400 whitespace-nowrap text-sm hidden sm:table-cell">
-                <ClientDate date={click.created_at} />
-              </td>
-            </tr>
-          ))}
-        </tbody>
+                {/* Device */}
+                <td className="px-4 py-3 text-center text-xl text-zinc-600 dark:text-zinc-400">
+                  {click.source.match(
+                    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/
+                  ) ? (
+                    <RiSmartphoneLine />
+                  ) : (
+                    <FaComputer />
+                  )}
+                </td>
+
+                {/* Source */}
+                <td
+                  className="px-4 py-3 max-w-[250px] truncate text-zinc-700 dark:text-zinc-300 text-sm select-text"
+                  title={click.source}
+                >
+                  {click.source.length > 75
+                    ? click.source.slice(0, 75) + "…"
+                    : click.source}
+                </td>
+
+                {/* IP */}
+                <td className="px-4 py-3 font-mono text-zinc-800 dark:text-zinc-200 whitespace-nowrap">
+                  {click.ip}
+                </td>
+
+                {/* Time */}
+                <td className="px-4 py-3 text-zinc-600 dark:text-zinc-400 whitespace-nowrap text-sm hidden sm:table-cell">
+                  <ClientDate date={click.created_at} />
+                </td>
+              </tr>
+            ))}
+          </tbody>
       </table>
     </div>
     <p className="text-xs text-center text-zinc-500 lg:hidden">Geser ke kanan untuk lihat kolom lainnya →</p>

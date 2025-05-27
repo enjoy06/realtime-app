@@ -52,6 +52,19 @@ export function SummaryRealtime({ data }: { data: DashboardData }) {
     return inDateRange && matchesUser;
   });
 
+  // Sort by total earning descending
+  const groupedSummary = Object.values(
+    filteredSummary.reduce<Record<string, Summary>>((acc, item) => {
+      if (!acc[item.user]) {
+        acc[item.user] = { ...item };
+      } else {
+        acc[item.user].total_click += item.total_click;
+        acc[item.user].total_earning += item.total_earning;
+      }
+      return acc;
+    }, {})
+  );
+
   // Reset ke hari ini & kosongkan search
   const resetFilters = () => {
     const today = new Date();
@@ -80,7 +93,7 @@ export function SummaryRealtime({ data }: { data: DashboardData }) {
   };
 
   return (
-<div className="pt-6 space-y-6">
+<div className="pt-0 space-y-6">
   {/* Filter bar */}
   <div className="flex flex-wrap justify-center items-center gap-4 px-3 py-4 bg-white dark:bg-zinc-900 rounded-lg border border-zinc-200 dark:border-zinc-700 shadow-sm">
     <button
@@ -91,6 +104,7 @@ export function SummaryRealtime({ data }: { data: DashboardData }) {
       {startDateStr} to {endDateStr}
     </button>
 
+    {/* reload */}
     <button
       onClick={resetFilters}
       className="p-2 rounded-full hover:bg-zinc-200 dark:hover:bg-zinc-700 transition"
@@ -100,14 +114,16 @@ export function SummaryRealtime({ data }: { data: DashboardData }) {
       <RotateCcw size={18} />
     </button>
 
+    {/* export */}
     <button
       onClick={handleExport}
-      className="flex items-center gap-2 text-sm font-medium text-blue-600 dark:text-blue-400 hover:underline"
+      className="flex items-end gap-2 text-sm font-medium text-blue-600 dark:text-blue-400 hover:underline"
       title="Export to CSV"
       aria-label="Export to CSV"
     >
-      <Download size={18} /> Export
+      <Download size={18} />
     </button>
+
   </div>
 
   {/* Date range picker popup */}
@@ -147,15 +163,18 @@ export function SummaryRealtime({ data }: { data: DashboardData }) {
     </div>
   )}
 
-  <div className="flex justify-self-start items-center gap-2">
+  {/* Search by User */}
+  <div className="w-full mb-4">
+  <div className="flex items-center gap-2 w-full">
     <input
       type="text"
       placeholder="Search user..."
       value={searchUser}
       onChange={(e) => setSearchUser(e.target.value)}
-      className="rounded-md border border-zinc-300 dark:border-zinc-600 px-3 py-2 text-sm dark:bg-zinc-800 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+      className="w-full rounded-md border border-zinc-300 dark:border-zinc-600 px-3 py-2 text-sm dark:bg-zinc-800 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
     />
   </div>
+</div>
 
   {/* Table */}
   <div className="overflow-x-auto border border-zinc-200 dark:border-zinc-700 rounded-xl shadow-md">
@@ -169,7 +188,7 @@ export function SummaryRealtime({ data }: { data: DashboardData }) {
       </thead>
       <tbody>
         {filteredSummary.length ? (
-          filteredSummary.map((click, i) => (
+          groupedSummary.map((click, i) => (
             <tr
               key={click.id}
               className={`transition-colors duration-200 ${
