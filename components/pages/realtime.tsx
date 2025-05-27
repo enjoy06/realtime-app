@@ -23,6 +23,7 @@ export default function DashboardPage(props: any) {
     }
     refreshData();
 
+    // Inisialisasi koneksi socket
     const socket = io(process.env.NEXT_PUBLIC_SOCKET_URL, {
       transports: ["websocket"],
     });
@@ -36,7 +37,7 @@ export default function DashboardPage(props: any) {
       setTimeout(async () => {
         const newData = await fetchDashboardData();
         setDashboardData(newData);
-      }, 500); // Delay 0.5 detik untuk menunggu data terupdate
+      }, 5000); // Delay 5 detik untuk menunggu data terupdate
     });
 
     socket.on("user-klik", async (payload) => {
@@ -44,12 +45,13 @@ export default function DashboardPage(props: any) {
       setTimeout(async () => {
         const result = await fetchLiveClicks();
         setDashboardData((prev: any) => ({ ...prev, liveClicks: result.clicks }));
-      }, 500); // Delay 0.5 detik untuk menunggu data terupdate
+      }, 5000); // Delay 5 detik untuk menunggu data terupdate
     });
 
     socket.on("disconnect", () => {
       console.log("Disconnected");
     });
+
     return () => {
       socket.off("user-lead");
       socket.off("user-klik");
