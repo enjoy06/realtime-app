@@ -8,6 +8,7 @@ import { StatsRealtime } from "./stats";
 import { SummaryRealtime } from "./summary";
 import { fetchDashboardData } from "@/lib/ambil_lead";
 import { fetchLiveClicks } from "@/lib/get_klik";
+import axios from "axios";
 
 export default function DashboardPage(props: any) {
   const [dashboardData, setDashboardData] = useState(props);
@@ -27,7 +28,18 @@ export default function DashboardPage(props: any) {
     // const socket = io("http://localhost:3000", {
     //   path: "/api/socket",
     // });
-    const socket = io(process.env.NEXT_PUBLIC_SOCKET_URL);
+    const socket = io(process.env.NEXT_PUBLIC_SOCKET_URL, {
+      transports: ["websocket"],
+    });
+    
+    // Emit an event to test the connection
+    axios.post(`${process.env.NEXT_PUBLIC_SOCKET_URL}/broadcast`, {
+      event: "user-klik",
+      payload: {
+        message: "Test dari axios",
+      },
+    });
+
 
     socket.on("user-lead", async () => {
       const newData = await fetchDashboardData();
