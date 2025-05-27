@@ -23,10 +23,11 @@ export default function DashboardPage(props: any) {
   }, [selectedTab]);
 
   useEffect(() => {
-    fetch("/api/socket");
-    const socket = io("http://localhost:3000", {
-      path: "/api/socket",
-    });
+    //fetch("/api/socket");
+    // const socket = io("http://localhost:3000", {
+    //   path: "/api/socket",
+    // });
+    const socket = io(process.env.NEXT_PUBLIC_SOCKET_URL);
 
     socket.on("user-lead", async () => {
       const newData = await fetchDashboardData();
