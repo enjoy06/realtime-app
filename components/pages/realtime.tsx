@@ -24,15 +24,34 @@ export default function DashboardPage(props: any) {
   }, [selectedTab]);
 
   useEffect(() => {
-    //fetch("/api/socket");
+    
     // const socket = io("http://localhost:3000", {
     //   path: "/api/socket",
     // });
+
+    fetch(process.env.NEXT_PUBLIC_SOCKET_URL + "/broadcast", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        event: "user-klik",
+        payload: {
+          message: "Socket tesklik server initialized",
+          data: {},
+        },
+      }),
+    });
+    
     const socket = io(process.env.NEXT_PUBLIC_SOCKET_URL, {
       transports: ["websocket"],
       secure: true,
       autoConnect: true,
     });
+
+    socket.on("connect", () => console.log("Connected to socket server"));
+    socket.on("connect_error", (err) => console.error("Socket connect error:", err));
+    socket.on("disconnect", () => console.log("Socket disconnected"));
 
     socket.on("user-lead", async (payload) => {
       console.log("📥 Event 'user-lead' diterima:", payload);
@@ -55,12 +74,6 @@ export default function DashboardPage(props: any) {
       setDashboardData((prev: any) => ({ ...prev, liveClicks: result.clicks }));
     }, 60000);
 
-    socket.on("connect", () => {
-      console.log("✅ Connected to WebSocket");
-    });
-    socket.on("connect_error", (err) => {
-      console.error("❌ Connection error:", err);
-    });
     socket.on("disconnect", () => console.log("Disconnected"));
 
     return () => {
