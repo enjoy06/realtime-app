@@ -141,7 +141,7 @@ export function SummaryRealtime({ data }: { data: DashboardData }) {
           onClick={() => setShowDatePicker(false)}
           className="mt-5 w-full py-2 flex justify-center items-center font-mono bg-blue-600 text-white rounded hover:bg-blue-700 transition"
         >
-          Close
+          Set
         </button>
       </div>
     </div>
