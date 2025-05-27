@@ -31,15 +31,18 @@ export default function DashboardPage(props: any) {
     const socket = io(process.env.NEXT_PUBLIC_SOCKET_URL, {
       transports: ["websocket"],
     });
-    
+
     // Emit an event to test the connection
     axios.post(`${process.env.NEXT_PUBLIC_SOCKET_URL}/broadcast`, {
       event: "user-klik",
       payload: {
         message: "Test dari axios",
       },
+    }).then(() => {
+      console.log("✅ Broadcast berhasil");
+    }).catch((err) => {
+      console.error("❌ Broadcast gagal", err);
     });
-
 
     socket.on("user-lead", async () => {
       const newData = await fetchDashboardData();
