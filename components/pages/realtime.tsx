@@ -21,42 +21,12 @@ export default function DashboardPage(props: any) {
       setDashboardData(newData);
     }
     refreshData();
-  }, [selectedTab]);
-
-  useEffect(() => {
-    
-    // const socket = io("http://localhost:3000", {
-    //   path: "/api/socket",
-    // });
-
-    fetch(process.env.NEXT_PUBLIC_SOCKET_URL + "/broadcast", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        event: "user-connect",
-        payload: {
-          message: "Socket server initialized",
-          data: {},
-        },
-      }),
-    });
-
     const socket = io(process.env.NEXT_PUBLIC_SOCKET_URL, {
       transports: ["websocket"],
-      secure: true,
-      autoConnect: true,
-      forceNew: true,
-      reconnectionAttempts: 5,
     });
 
-    socket.on("connect", () => console.log("Connected to socket server"));
-    socket.on("connect_error", (err) => console.error("Socket connect error:", err));
-    socket.on("disconnect", () => console.log("Socket disconnected"));
-
-    socket.on("user-connect", async (payload) => {
-      console.log("📥 Event 'user-connect' diterima:", payload);
+    socket.on("connect", () => {
+      console.log("Connected with id:", socket.id);
     });
 
     socket.on("user-lead", async (payload) => {
@@ -64,7 +34,7 @@ export default function DashboardPage(props: any) {
       setTimeout(async () => {
         const newData = await fetchDashboardData();
         setDashboardData(newData);
-      }, 5000); // Delay 5 detik untuk menunggu data terupdate
+      }, 500); // Delay 0.5 detik untuk menunggu data terupdate
     });
 
     socket.on("user-klik", async (payload) => {
@@ -72,23 +42,80 @@ export default function DashboardPage(props: any) {
       setTimeout(async () => {
         const result = await fetchLiveClicks();
         setDashboardData((prev: any) => ({ ...prev, liveClicks: result.clicks }));
-      }, 5000); // Delay 5 detik untuk menunggu data terupdate
+      }, 500); // Delay 0.5 detik untuk menunggu data terupdate
     });
 
-    const interval = setInterval(async () => {
-      const result = await fetchLiveClicks();
-      setDashboardData((prev: any) => ({ ...prev, liveClicks: result.clicks }));
-    }, 60000);
+    socket.on("disconnect", () => {
+      console.log("Disconnected");
+    });
+  }, [selectedTab]);
 
-    socket.on("disconnect", () => console.log("Disconnected"));
+  // useEffect(() => {
+    
+  //   // const socket = io("http://localhost:3000", {
+  //   //   path: "/api/socket",
+  //   // });
 
-    return () => {
-      clearInterval(interval);
-      socket.off("user-klik");
-      socket.off("user-lead");
-      socket.close();
-    };
-  }, []);
+  //   fetch(process.env.NEXT_PUBLIC_SOCKET_URL + "/broadcast", {
+  //     method: "POST",
+  //     headers: {
+  //       "Content-Type": "application/json",
+  //     },
+  //     body: JSON.stringify({
+  //       event: "user-connect",
+  //       payload: {
+  //         message: "Socket server initialized",
+  //         data: {},
+  //       },
+  //     }),
+  //   });
+
+  //   const socket = io(process.env.NEXT_PUBLIC_SOCKET_URL, {
+  //     transports: ["websocket"],
+  //     secure: true,
+  //     autoConnect: true,
+  //     forceNew: true,
+  //     reconnectionAttempts: 5,
+  //   });
+
+  //   socket.on("connect", () => console.log("Connected to socket server"));
+  //   socket.on("connect_error", (err) => console.error("Socket connect error:", err));
+  //   socket.on("disconnect", () => console.log("Socket disconnected"));
+
+  //   socket.on("user-connect", async (payload) => {
+  //     console.log("📥 Event 'user-connect' diterima:", payload);
+  //   });
+
+  //   socket.on("user-lead", async (payload) => {
+  //     console.log("📥 Event 'user-lead' diterima:", payload);
+  //     setTimeout(async () => {
+  //       const newData = await fetchDashboardData();
+  //       setDashboardData(newData);
+  //     }, 5000); // Delay 5 detik untuk menunggu data terupdate
+  //   });
+
+  //   socket.on("user-klik", async (payload) => {
+  //     console.log("📥 Event 'user-klik' diterima:", payload);
+  //     setTimeout(async () => {
+  //       const result = await fetchLiveClicks();
+  //       setDashboardData((prev: any) => ({ ...prev, liveClicks: result.clicks }));
+  //     }, 5000); // Delay 5 detik untuk menunggu data terupdate
+  //   });
+
+  //   const interval = setInterval(async () => {
+  //     const result = await fetchLiveClicks();
+  //     setDashboardData((prev: any) => ({ ...prev, liveClicks: result.clicks }));
+  //   }, 60000);
+
+  //   socket.on("disconnect", () => console.log("Disconnected"));
+
+  //   return () => {
+  //     clearInterval(interval);
+  //     socket.off("user-klik");
+  //     socket.off("user-lead");
+  //     socket.close();
+  //   };
+  // }, []);
 
   return (
     <div className="min-h-screen flex flex-col bg-white dark:bg-zinc-900 transition-colors">
