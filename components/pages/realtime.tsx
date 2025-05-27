@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { io } from "socket.io-client";
 import { fetchDashboardData } from "@/lib/ambil_lead";
 import { fetchLiveClicks } from "@/lib/get_klik";
-import { RealtimeTab } from "./realtime-lead";
+import { RealtimeTab } from "./dashboard";
 import { StatsRealtime } from "./stats";
 import { SummaryRealtime } from "./summary";
 
@@ -46,7 +46,7 @@ interface Summary {
   total_earning: number;
   total_click: number;
   created_at: Date;
-  created_date: string; // format: "2025-05-26"
+  created_date: string;
   created_hour: string;
   created_week: string;
 }

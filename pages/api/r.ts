@@ -105,6 +105,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // Cek apakah sudah ada summary user hari ini
     let summaryDocId = '';
+    let live_clickId = '';
     let existingClicks = 0;
     let existingEarning = 0;
 
@@ -128,7 +129,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     };
 
     const summaryRef = write.collection('user_summary').doc(summaryDocId || `${userId}_${createdDate}`);
-    const liveClickRef = write.collection('live_clicks').doc(userId);
+    const liveClickRef = write.collection('live_clicks').doc(live_clickId || `LiveClick_From_${userId}_${dayjs(nowJS).format('YYYYMMDD_HHmmss')}`);
 
     await Promise.all([
       summaryRef.set(summaryData, { merge: true }),
