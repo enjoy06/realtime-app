@@ -8,7 +8,6 @@ import { StatsRealtime } from "./stats";
 import { SummaryRealtime } from "./summary";
 import { fetchDashboardData } from "@/lib/ambil_lead";
 import { fetchLiveClicks } from "@/lib/get_klik";
-import axios from "axios";
 
 export default function DashboardPage(props: any) {
   const [dashboardData, setDashboardData] = useState(props);
@@ -16,11 +15,14 @@ export default function DashboardPage(props: any) {
   const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
+
+    // Inisialisasi data dashboard saat komponen pertama kali dimuat
     async function refreshData() {
       const newData = await fetchDashboardData();
       setDashboardData(newData);
     }
     refreshData();
+
     const socket = io(process.env.NEXT_PUBLIC_SOCKET_URL, {
       transports: ["websocket"],
     });
@@ -48,7 +50,13 @@ export default function DashboardPage(props: any) {
     socket.on("disconnect", () => {
       console.log("Disconnected");
     });
-  }, [selectedTab]);
+    return () => {
+      socket.off("user-lead");
+      socket.off("user-klik");
+      socket.off("disconnect");
+      socket.close();
+    };
+  }, []);
 
   // useEffect(() => {
     
