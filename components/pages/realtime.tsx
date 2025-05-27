@@ -15,6 +15,17 @@ export default function DashboardPage(props: any) {
   const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
+    // Interval untuk memperbarui data klik secara live
+    const interval = setInterval(async () => {
+      console.log("Mengambil data klik live...");
+      // Ambil data klik live setiap 60 detik
+      const result = await fetchLiveClicks();
+      setDashboardData((prev: any) => ({ ...prev, liveClicks: result.clicks }));
+    }, 60000); // Update setiap 60 detik
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
 
     // Inisialisasi data dashboard saat komponen pertama kali dimuat
     async function refreshData() {
@@ -58,17 +69,6 @@ export default function DashboardPage(props: any) {
       socket.off("disconnect");
       socket.close();
     };
-  }, []);
-
-  useEffect(() => {
-    // Interval untuk memperbarui data klik secara live
-    const interval = setInterval(async () => {
-      console.log("Mengambil data klik live...");
-      // Ambil data klik live setiap 60 detik
-      const result = await fetchLiveClicks();
-      setDashboardData((prev: any) => ({ ...prev, liveClicks: result.clicks }));
-    }, 60000); // Update setiap 60 detik
-    return () => clearInterval(interval);
   }, []);
 
   // useEffect(() => {
