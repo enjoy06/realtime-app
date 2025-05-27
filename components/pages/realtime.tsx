@@ -35,23 +35,29 @@ export default function DashboardPage(props: any) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        event: "user-klik",
+        event: "user-connect",
         payload: {
-          message: "Socket tesklik server initialized",
+          message: "Socket server initialized",
           data: {},
         },
       }),
     });
-    
+
     const socket = io(process.env.NEXT_PUBLIC_SOCKET_URL, {
       transports: ["websocket"],
       secure: true,
       autoConnect: true,
+      forceNew: true,
+      reconnectionAttempts: 5,
     });
 
     socket.on("connect", () => console.log("Connected to socket server"));
     socket.on("connect_error", (err) => console.error("Socket connect error:", err));
     socket.on("disconnect", () => console.log("Socket disconnected"));
+
+    socket.on("user-connect", async (payload) => {
+      console.log("📥 Event 'user-connect' diterima:", payload);
+    });
 
     socket.on("user-lead", async (payload) => {
       console.log("📥 Event 'user-lead' diterima:", payload);

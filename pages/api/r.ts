@@ -79,13 +79,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     //   source: sourceType,
     // });
 
-    await axios.post(`${process.env.NEXT_PUBLIC_SOCKET_URL}/broadcast`, {
+    const sendToSocket = await axios.post(`${process.env.NEXT_PUBLIC_SOCKET_URL}/broadcast`, {
       event: "user-klik",
       payload: {
         message: `User: ${sub} Connected successfully..!`,
         data: {sub, ip, gadget, source: sourceType},
       }
     });
+
+    if (sendToSocket.status !== 200) {
+      console.error("❌ Failed to send to socket:", sendToSocket.statusText, sendToSocket.data);
+    }
 
 
     const clickPayload: ClickData = {
