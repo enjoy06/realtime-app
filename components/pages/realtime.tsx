@@ -32,15 +32,20 @@ export default function DashboardPage(props: any) {
       transports: ["websocket"],
     });
 
-    socket.on("user-lead", async () => {
-      const newData = await fetchDashboardData();
-      setDashboardData(newData);
+    socket.on("user-lead", async (payload) => {
+      console.log("📥 Event 'user-lead' diterima:", payload);
+      setTimeout(async () => {
+        const newData = await fetchDashboardData();
+        setDashboardData(newData);
+      }, 5000); // Delay 5 detik untuk menunggu data terupdate
     });
 
     socket.on("user-klik", async (payload) => {
       console.log("📥 Event 'user-klik' diterima:", payload);
-      const result = await fetchLiveClicks();
-      setDashboardData((prev: any) => ({ ...prev, liveClicks: result.clicks }));
+      setTimeout(async () => {
+        const result = await fetchLiveClicks();
+        setDashboardData((prev: any) => ({ ...prev, liveClicks: result.clicks }));
+      }, 5000); // Delay 5 detik untuk menunggu data terupdate
     });
 
     const interval = setInterval(async () => {
