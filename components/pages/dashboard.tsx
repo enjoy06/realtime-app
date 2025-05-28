@@ -157,7 +157,6 @@ export function RealtimeTab({ data }: { data: DashboardData }) {
     setSelectedLiveClick(null);
   };
 
-
   return (
     <div className="pt-0 space-y-6">
       {/* Live Clicks & Top Users */}
@@ -261,24 +260,13 @@ export function RealtimeTab({ data }: { data: DashboardData }) {
 
                   {/* Details list */}
                   <div className="space-y-4 text-zinc-700 dark:text-zinc-300 text-sm">
-
                     {/* User */}
                     <div className="flex items-center space-x-2">
                       <User className="w-4 h-4 text-blue-500" />
-                      {/* <strong>User ID:</strong> */}
                       <span className="font-semibold">
                         {selectedLiveClick?.user}
                       </span>
                     </div>
-
-                    {/* Flag */}
-                    {/* <div className="flex items-center space-x-2">
-                      <MapPin className="w-4 h-4 text-red-500" />
-                      <strong>Country:</strong>
-                      <span className="font-serif">
-                        {selectedLiveClick.country}
-                      </span>
-                    </div> */}
                     
                     {/* IP */}
                     <div className="flex items-center space-x-2">
@@ -321,8 +309,8 @@ export function RealtimeTab({ data }: { data: DashboardData }) {
                          {selectedLiveClick.source}
                       </span>
                     </div>
-
                   </div>
+
                 </div>
               </div>
             )}
@@ -400,6 +388,7 @@ export function RealtimeTab({ data }: { data: DashboardData }) {
 
     {/* Table */}
     <div className="overflow-x-auto rounded-xl shadow-md mt-4 border border-zinc-200 dark:border-zinc-700">
+        
         <table className="table-auto min-w-full divide-y divide-zinc-200 dark:divide-zinc-700 text-sm">
             <thead className="bg-gradient-to-r from-blue-500 via-purple-500 to-amber-500 text-white dark:bg-zinc-800 dark:text-zinc-300">
             <tr>
@@ -412,7 +401,13 @@ export function RealtimeTab({ data }: { data: DashboardData }) {
             </tr>
             </thead>
             <tbody className="divide-y divide-zinc-100 dark:divide-zinc-700">
-            {filteredLeads.map((lead) => (
+            {filteredLeads.length === 0 ? (
+              <tr>
+                <td colSpan={6} className="text-center px-4 py-6 text-zinc-500 dark:text-zinc-400 italic">
+                  No Leads today..
+                </td>
+              </tr>
+            ) : ( filteredLeads.map((lead) => (
                 // <tr key={lead.id} className="odd:bg-cyan-100 even:bg-cyan-50 dark:odd:bg-zinc-900 dark:even:bg-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition">
                 <tr
                   key={lead.id}
@@ -455,7 +450,8 @@ export function RealtimeTab({ data }: { data: DashboardData }) {
                     <ClientDate date={lead.created_at} />
                 </td>
                 </tr>
-            ))}
+              ))
+            )}
             </tbody>
         </table>
 
