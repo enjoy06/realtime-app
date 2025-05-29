@@ -14,6 +14,7 @@ import { Timestamp } from 'firebase-admin/firestore';
 
 interface ClickData {
   user: string;
+  network: string;
   country: string;
   source: string;
   gadget: string;
@@ -66,7 +67,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   };
 
   const sub = Array.isArray(req.query.sub) ? req.query.sub[0] : (req.query.sub ?? 'unknown');
+  const network = Array.isArray(req.query.network) ? req.query.network[1] : (req.query.network ?? 'unknown');
   const userId = sub;
+
+  if (!req.query.sub || !req.query.network) {
+    res.status(400).json({error: 'Missing sub or network.'});
+  }
 
   const cekUser = await write
     .collection('users')
@@ -86,7 +92,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     : "default";
 
   const gadget = isMobile ? 'WAP' : 'WEB';
-  const encoded = Buffer.from(`${sub}|${await getCountry()}|${gadget}|${ip}`).toString('base64');
+  //const encoded = Buffer.from(`${sub}|${await getCountry()}|${gadget}|${ip}|${network}`).toString('base64');
+  const encoded = Buffer.from(`${sub}|${await getCountry()}|${ip}|${gadget}|${network}`).toString('base64');
 
   try {
     // Kirim ke socket
@@ -100,6 +107,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const clickPayload: ClickData = {
       user: sub,
+      network: network,
       country: await getCountry(),
       source: userAgent,
       gadget: sourceType,

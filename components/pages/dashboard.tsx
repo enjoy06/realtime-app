@@ -3,13 +3,13 @@
 import { Card, CardContent } from "@/components/ui/card";
 import ReactCountryFlag from "react-country-flag";
 import Image from "next/image";
-import { FaAlipay, FaArrowDownLong, FaArrowPointer, FaArrowRightLong, FaArrowRotateRight, FaArrowTurnUp, FaComputer, FaFlutter, FaICursor, FaRegHeart } from "react-icons/fa6";
+import { FaArrowPointer, FaComputer } from "react-icons/fa6";
 import { RiSmartphoneLine } from "react-icons/ri";
-import { FcBbc, FcBookmark, FcBullish, FcBusiness, FcCableRelease, FcCallTransfer, FcCloseUpMode, FcDisplay, FcFlashOn, FcInfo, FcMultipleDevices } from "react-icons/fc";
+import { FcFlashOn, FcInfo } from "react-icons/fc";
 import TopCountryChart from "@/components/chart/TopCountryChart";
 import { ClientDate } from "./clientDate";
-import { SetStateAction, use, useState } from "react";
-import { Clock, Cpu, DollarSign, EarthLock, Eye, MapPin, Minimize2, User, Wifi, X } from "lucide-react";
+import { useState } from "react";
+import { Clock, Cpu, DollarSign, EarthLock, MapPin, User, Wifi, X } from "lucide-react";
 import axios from "axios";
 
 // Types
@@ -137,6 +137,7 @@ export function RealtimeTab({ data }: { data: DashboardData }) {
   };
 
   const openModal = (lead: Lead) => {
+    getIPinfo(lead.ip);
     setSelectedLead(lead);
     setIsOpen(true);
   };
@@ -388,16 +389,15 @@ export function RealtimeTab({ data }: { data: DashboardData }) {
 
     {/* Table */}
     <div className="overflow-x-auto rounded-xl shadow-md mt-4 border border-zinc-200 dark:border-zinc-700">
-        
         <table className="table-auto min-w-full divide-y divide-zinc-200 dark:divide-zinc-700 text-sm">
             <thead className="bg-gradient-to-r from-blue-500 via-purple-500 to-amber-500 text-white dark:bg-zinc-800 dark:text-zinc-300">
             <tr>
-                <th className="px-4 py-2 text-left font-semibold whitespace-nowrap">User</th>
-                <th className="px-4 py-2 text-left font-semibold whitespace-nowrap">Country</th>
-                <th className="px-4 py-2 text-left font-semibold whitespace-nowrap">Source</th>
-                <th className="px-4 py-2 text-left font-semibold whitespace-nowrap hidden md:table-cell">IP</th>
-                <th className="px-4 py-2 text-left font-semibold whitespace-nowrap">Earning</th>
-                <th className="px-4 py-2 text-left font-semibold whitespace-nowrap hidden sm:table-cell">Time</th>
+              <th className="px-4 py-2 text-left font-semibold whitespace-nowrap">User</th>
+              <th className="px-4 py-2 text-left font-semibold whitespace-nowrap">Country</th>
+              <th className="px-4 py-2 text-left font-semibold whitespace-nowrap">Source</th>
+              <th className="px-4 py-2 text-left font-semibold whitespace-nowrap hidden md:table-cell">IP</th>
+              <th className="px-4 py-2 text-left font-semibold whitespace-nowrap">Earning</th>
+              <th className="px-4 py-2 text-left font-semibold whitespace-nowrap hidden sm:table-cell">Time</th>
             </tr>
             </thead>
             <tbody className="divide-y divide-zinc-100 dark:divide-zinc-700">
@@ -407,20 +407,20 @@ export function RealtimeTab({ data }: { data: DashboardData }) {
                   No Leads today..
                 </td>
               </tr>
-            ) : ( filteredLeads.map((lead) => (
-                // <tr key={lead.id} className="odd:bg-cyan-100 even:bg-cyan-50 dark:odd:bg-zinc-900 dark:even:bg-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition">
+            ) : (
+            // tabel lead //
+             filteredLeads.map((lead) => (
                 <tr
                   key={lead.id}
                   className="cursor-pointer odd:bg-cyan-100 even:bg-cyan-50 dark:odd:bg-zinc-900 dark:even:bg-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition"
                   onClick={() => openModal(lead)}
                 >
-
                 {/* UserId */}
                 <td className="px-4 py-2 font-serif text-zinc-800 dark:text-zinc-100 whitespace-nowrap">
                     {lead.userId}
                 </td>
                 {/* Country */}
-                <td className="px-4 py-2 whitespace-nowrap text-zinc-800 dark:text-zinc-100 flex items-center gap-2">
+                <td className="px-6 py-2 whitespace-nowrap text-zinc-800 dark:text-zinc-100 flex items-center gap-2">
                     <ReactCountryFlag
                     countryCode={lead.country || "XX"}
                     svg
@@ -443,7 +443,10 @@ export function RealtimeTab({ data }: { data: DashboardData }) {
                 </td>
                 {/* Earning */}
                 <td className="px-4 py-2 font-mono font-bold text-green-700 dark:text-green-400 whitespace-nowrap">
-                    ${lead.earning.toFixed(2)}
+                  <div className="flex items-center space-x-0">
+                    <DollarSign className="w-auto h-4 text-green-300" />
+                    <span>{lead.earning.toFixed(2)}</span>
+                  </div>
                 </td>
                 {/* Time */}
                 <td className="px-4 py-2 text-zinc-600 dark:text-zinc-400 whitespace-nowrap hidden sm:table-cell">
@@ -455,13 +458,13 @@ export function RealtimeTab({ data }: { data: DashboardData }) {
             </tbody>
         </table>
 
-        {/* show information */}
+        {/* show information about leads */}
         {isOpen && selectedLead && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 backdrop-blur-sm">
           <div 
             className="
             bg-white dark:bg-zinc-900 rounded-3xl shadow-xl 
-              max-w-sm w-full p-6 relative animate-fade-in-scale
+              max-w-sm w-full p-5 relative animate-fade-in-scale
               mx-6 sm:mx-auto sm:max-w-md
               max-h-[90vh] overflow-auto"
             style={{ animationTimingFunction: "cubic-bezier(0.4, 0, 0.2, 1)" }}
@@ -474,37 +477,53 @@ export function RealtimeTab({ data }: { data: DashboardData }) {
             >
               <X className="w-5 h-5 text-zinc-600 dark:text-zinc-300" />
             </button>
-
             {/* Title */}
-            <h2 className="text-2xl font-mono mb-6 text-zinc-900 dark:text-white">
-              INFORMASI LEAD
+            <h2 className="flex items-center text-1xl font-mono mb-6 text-zinc-900 dark:text-white text-left">
+              <FcFlashOn className="mr-2 text-2xl" /> INFORMASI LEAD {whatIsMyIP?.country}
             </h2>
-
             {/* Details list */}
             <div className="space-y-4 text-zinc-700 dark:text-zinc-300 text-sm">
-              <div className="flex items-center space-x-2">
+              {/* User */}
+              <div className="flex items-center space-x-3">
                 <User className="w-4 h-4 text-blue-500" />
-                <span><strong>User ID:</strong> {selectedLead.userId}</span>
+                <span className="font-mono text-1xl">
+                  <strong>{selectedLead.userId}</strong>
+                </span>
               </div>
-              <div className="flex items-center space-x-2">
-                <MapPin className="w-4 h-4 text-red-500" />
-                <span><strong>Country:</strong> {selectedLead.country}</span>
-              </div>
-              <div className="flex items-center space-x-2">
+              {/* IP Address */}
+              <div className="flex items-center space-x-3">
                 <Wifi className="w-4 h-4 text-green-500" />
-                <span><strong>IP Address:</strong> {selectedLead.ip}</span>
+                <span className="font-mono text-1xl">
+                  <strong>IP Address: </strong>{selectedLead.ip}
+                </span>
               </div>
-              <div className="flex items-center space-x-2">
+              {/* Full Address */}
+              <div className="flex items-center space-x-3">
+                <MapPin className="w-4 h-4 text-red-500" />
+                <span className="font-mono text-1xl">
+                  <strong>From: </strong>{whatIsMyIP?.region}, {whatIsMyIP?.city}, {whatIsMyIP?.postal}
+                </span>
+              </div>
+              {/* Earning */}
+              <div className="flex items-center space-x-3">
                 <DollarSign className="w-4 h-4 text-yellow-500" />
-                <span><strong>Earning:</strong> ${selectedLead.earning.toFixed(2)}</span>
+                <span className="font-mono text-1xl">
+                  <strong>Earning: </strong> {selectedLead.earning.toFixed(2)}
+                </span>
               </div>
-              <div className="flex items-center space-x-2">
+              {/* UA */}
+              {/* <div className="flex items-center space-x-3">
                 <Cpu className="w-4 h-4 text-purple-500" />
-                <span><strong>Device:</strong> {selectedLead.useragent}</span>
-              </div>
-              <div className="flex items-center space-x-2">
+                <span className="font-serif">
+                  {selectedLead.useragent}
+                </span>
+              </div> */}
+              {/* Time */}
+              <div className="flex items-center space-x-3">
                 <Clock className="w-4 h-4 text-indigo-500" />
-                <span><strong>Time:</strong> <ClientDate date={selectedLead.created_at} /></span>
+                <span className="font-mono text-1xl">
+                  <strong>Waktu Lead: </strong><ClientDate date={selectedLead.created_at} />
+                </span>
               </div>
             </div>
           </div>
