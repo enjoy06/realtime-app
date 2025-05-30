@@ -86,7 +86,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   const sourceType =
     userAgent.includes("Instagram") ? "instagram"
-    : userAgent.includes("FB") ? "facebook"
+    : userAgent.includes("[FBAN") ? "facebook"
+    : userAgent.includes("[FB_IAB") ? "facebook"
+    : userAgent.includes("/FBIOS") ? "facebook"
+    : userAgent.includes(";FBAV") ? "facebook"
+    : userAgent.includes(";FBDV") ? "facebook"
     : userAgent.includes("Chrome") ? "chrome"
     : userAgent.includes("Safari") ? "safari"
     : "default";

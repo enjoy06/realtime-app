@@ -1,20 +1,25 @@
-"use client";
+// "use client";
 
 import { Card, CardContent } from "@/components/ui/card";
 import ReactCountryFlag from "react-country-flag";
 import Image from "next/image";
 import { FaArrowPointer, FaComputer, FaCrown } from "react-icons/fa6";
 import { RiSmartphoneLine } from "react-icons/ri";
-import { FcFlashOn, FcInfo } from "react-icons/fc";
-import TopCountryChart from "@/components/chart/TopCountryChart";
-import { ClientDate } from "./clientDate";
-import InfoRealtime from "./quoteRealtime";
+import { FcFlashOn } from "react-icons/fc";
 import { useState } from "react";
-import { Clock, Cpu, DollarSign, EarthLock, MapPin, User, Wifi, X } from "lucide-react";
+import { Clock, Cpu, DollarSign, EarthLock, Globe, MapPin, User, Wifi, X } from "lucide-react";
 import axios from "axios";
-import { isAfter, isBefore, setHours, setMinutes, setSeconds, addDays } from "date-fns";
+import {
+  isAfter,
+  isBefore,
+  setHours,
+  setMinutes,
+  setSeconds,
+  addDays,
+} from "date-fns";
+import TopCountryChart from "../chart/TopCountryChart";
+import { ClientDate } from "./clientDate";
 
-// Types
 interface Click {
   id: string;
   user: string;
@@ -54,7 +59,6 @@ interface DashboardData {
   topLeads: TopLead[];
 }
 
-//cek info!
 interface IPInfo {
   ip: string;
   success: boolean;
@@ -109,7 +113,6 @@ interface IPInfo {
 }
 
 export function RealtimeTab({ data }: { data: DashboardData }) {
-
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [selectedLiveClick, setSelectedLiveClick] = useState<Click | null>(null);
@@ -117,42 +120,29 @@ export function RealtimeTab({ data }: { data: DashboardData }) {
   const [whatIsMyIP, setWhatIsMyIP] = useState<IPInfo | null>(null);
   const [searchUser, setSearchUser] = useState("");
   const [searchCountry, setSearchCountry] = useState("");
-  
+
   const now = new Date();
-
-  // Hitung jam 05:00 pagi hari ini
   const today5AM = setSeconds(setMinutes(setHours(new Date(), 5), 0), 0);
-
-  // Hitung jam 05:00 pagi keesokan harinya
-  const tomorrow5AM = addDays(today5AM, 1);
-
-  // Jika sekarang sebelum jam 5 pagi, maka kita ambil dari jam 5 pagi kemarin
   const start = now < today5AM ? addDays(today5AM, -1) : today5AM;
   const end = addDays(start, 1);
 
-  // Filtering leads dalam range jam 5 pagi hingga 5 pagi keesokan hari
   const filteredLeads = data.leads.filter((lead) => {
     const createdAt = new Date(lead.created_at);
     return (
-      isAfter(createdAt, start) && isBefore(createdAt, end) &&
+      isAfter(createdAt, start) &&
+      isBefore(createdAt, end) &&
       lead.userId.toLowerCase().includes(searchUser.toLowerCase()) &&
       lead.country.toLowerCase().includes(searchCountry.toLowerCase())
     );
   });
 
-  const getIPinfo = async (ip : string) => {
-
-    await axios.get(`https://ipwhois.pro/${ip}`,{
-      params: {
-        key: 'rmpJxy6jV0iWmWZu'
-      }
-    }).then((result)=>{
-      //console.log(result);
-      if (result && result.data) {
-        setWhatIsMyIP(result.data);
-      }
+  const getIPinfo = async (ip: string) => {
+    const result = await axios.get(`https://ipwhois.pro/${ip}`, {
+      params: { key: "rmpJxy6jV0iWmWZu" },
     });
-
+    if (result?.data) {
+      setWhatIsMyIP(result.data);
+    }
   };
 
   const openModal = (lead: Lead) => {
@@ -189,153 +179,146 @@ export function RealtimeTab({ data }: { data: DashboardData }) {
           dark:hover:bg-gradient-to-r dark:hover:from-zinc-900 dark:hover:via-zinc-700 dark:hover:to-zinc-900
           max-h-[400px] overflow-auto"
         >
-          <div className="flex items-start justify-start gap-2 mb-6 p-0">
-          <FaArrowPointer className="text-2xl text-blue-500 animate-pulse" />
-          <h2 className="font-mono text-1xl text-zinc-800 dark:text-white">Live Clicks</h2>
-          </div>
+        <div className="flex items-start justify-start gap-2 mb-6 p-0">
+        <FaArrowPointer className="text-2xl text-blue-500 animate-pulse" />
+        <h2 className="font-mono text-1xl text-zinc-800 dark:text-white">Live Clicks</h2>
+        </div>
 
-          {/* live clicks content */}
-          <div className="p-4 pt-0">
-            <div className="divide-y divide-zinc-200 dark:divide-zinc-700">
-              {[...data.liveClicks]
-                .sort((a, b) => b.created_at.getTime() - a.created_at.getTime())
-                .slice(0, 15)
-                .map((click) => (
-                  <div
-                    key={click.id}
-                    className="live-clicks-row animate-pulse flex flex-wrap items-center gap-x-2 gap-y-1"
-                    onClick={()=>showLiveCLicksInfo(click)}
-                  >
-                    {/* Flag */}
-                    <div className="flex-shrink-0 w-7">
-                      <ReactCountryFlag
-                        countryCode={click.country || "XX"}
-                        svg
-                        style={{
-                          width: "auto",
-                          height: "1.2rem",
-                          borderRadius: "3px",
-                          boxShadow: "0 0 2px rgba(0,0,0,0.15)",
-                        }}
-                        title={click.country}
-                      />
-                    </div>
-
-                    {/* User */}
-                    <div className="flex-grow font-mono text-cyan-500 dark:text-teal-300 text-sm truncate max-w-[100px]">
-                      {click.user}
-                    </div>
-
-                    {/* Device Icon */}
-                    <div className="flex-shrink-0 w-6 text-lg">
-                      {click.source.match(
-                        /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/
-                      ) ? (
-                        <RiSmartphoneLine />
-                      ) : (
-                        <FaComputer />
-                      )}
-                    </div>
-
-                    {/* IP */}
-                    <div className="flex-grow font-serif text-zinc-600 dark:text-teal-300 text-xs truncate max-w-[110px]">
-                      {click.ip}
-                    </div>
-
-                    {/* Browser Icon */}
-                    <div className="flex-shrink-0 w-6 text-center text-2xl text-zinc-500 px-1">
-                      {click.gadget.includes("chrome") && (
-                        <Image src={"/safari.svg"} alt="Browser Icon" width={20} height={20} />
-                      )}
-                    </div>
-                  </div>
-                ))}
-            </div>
-
-            {/* show live click when clicked! */}
-            {isOpenLiveClick && selectedLiveClick && (
-              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 backdrop-blur-sm">
-                <div 
-                  className="
-                  bg-white dark:bg-zinc-900 rounded-3xl shadow-xl 
-                    max-w-sm w-full p-6 relative animate-fade-in-scale
-                    mx-6 sm:mx-auto sm:max-w-md
-                    max-h-[90vh] overflow-auto"
-                  style={{ animationTimingFunction: "cubic-bezier(0.4, 0, 0.2, 1)" }}
+        {/* live clicks content */}
+        <div className="p-1 pt-0 text-sm">
+        <div className="divide-y divide-zinc-200 dark:divide-zinc-700">
+            {[...data.liveClicks]
+            .sort((a, b) => b.created_at.getTime() - a.created_at.getTime())
+            .slice(0, 15)
+            .map((click) => (
+                <div
+                key={click.id}
+                className="live-clicks-row animate-pulse flex flex-wrap items-center gap-x-2 gap-y-1 cursor-pointer"
+                onClick={() => showLiveCLicksInfo(click)}
                 >
-                  {/* Close button */}
-                  <button
-                    onClick={closeInfoLiveClick}
-                    className="absolute top-4 right-4 p-2 rounded-full hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors"
-                    aria-label="Close modal"
-                  >
-                    <X className="w-5 h-5 text-red-600 dark:text-zinc-300" />
-                  </button>
-
-                  {/* Information Dialog */}
-                  <h2 className="text-1xl font-mono mb-6 text-zinc-900 dark:text-white flex items-center gap-2">
-                    <FcFlashOn />
-                    Click: {whatIsMyIP?.country}
-                  </h2>
-
-                  {/* Details list */}
-                  <div className="space-y-4 text-zinc-700 dark:text-zinc-300 text-sm">
-                    {/* User */}
-                    <div className="flex items-center space-x-2">
-                      <User className="w-4 h-4 text-blue-500" />
-                      <span className="font-semibold">
-                        {selectedLiveClick?.user}
-                      </span>
-                    </div>
-                    
-                    {/* IP */}
-                    <div className="flex items-center space-x-2">
-                      <Wifi className="w-4 h-4 text-green-500" />
-                      {/* <strong>IP Address:</strong> */}
-                      <span className="font-mono">
-                        {selectedLiveClick.ip}
-                      </span>
-                    </div>
-
-                    {/* Device */}
-                    <div className="flex items-center space-x-2">
-                      <Cpu className="w-4 h-4 text-indigo-500" />
-                      {/* <strong>Device:</strong> */}
-                      <span className="font-serif">
-                        {selectedLiveClick.gadget.toUpperCase()}
-                      </span>
-                    </div>
-
-                    {/* Full info */}
-                    <div className="flex items-center space-x-2">
-                      <MapPin className="w-4 h-4 text-red-500" />
-                      <span className="font-mono text-wrap">
-                      {whatIsMyIP?.city}, {whatIsMyIP?.region}, {whatIsMyIP?.postal}
-                      </span>
-                    </div>
-
-                    {/* Koneksi? */}
-                    <div className="flex items-center space-x-2">
-                      <EarthLock className="w-4 h-4 text-red-500" />
-                      <span>
-                        {whatIsMyIP?.connection.isp}
-                      </span>
-                    </div>
-
-                    {/* UA */}
-                    <div className="flex items-center space-x-2 text-wrap">
-                      <span className="font-mono">
-                        {/* <Eye className="w-4 h-auto text-purple-500" /> */}
-                         {selectedLiveClick.source}
-                      </span>
-                    </div>
-                  </div>
-
+                {/* Flag */}
+                <div className="flex-shrink-0 w-6">
+                    <ReactCountryFlag
+                    countryCode={click.country || "XX"}
+                    svg
+                    style={{
+                        width: "auto",
+                        height: "1.2rem",
+                        borderRadius: "3px",
+                        boxShadow: "0 0 2px rgba(0,0,0,0.15)",
+                    }}
+                    title={click.country}
+                    />
                 </div>
-              </div>
-            )}
 
-          </div>
+                {/* User */}
+                <div className="flex-grow min-w-[60px] max-w-[130px] font-mono text-cyan-500 dark:text-teal-300 text-sm break-words">
+                    {click.user}
+                </div>
+
+                {/* Device Icon */}
+                <div className="flex-shrink-0 w-8 text-lg flex justify-center items-center text-zinc-600 dark:text-teal-300">
+                    {click.source.match(
+                    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/
+                    ) ? (
+                    <RiSmartphoneLine />
+                    ) : (
+                    <FaComputer />
+                    )}
+                </div>
+
+                {/* IP */}
+                <div className="flex-grow min-w-[90px] max-w-[150px] font-serif text-zinc-600 dark:text-teal-300 text-xs break-words">
+                    {click.ip}
+                </div>
+
+                {/* Browser Icon */}
+                <div className="flex-shrink-0 w-6 text-center text-xs">
+                    {
+                    click.gadget.includes("facebook") ? ( <Image src={'fb.svg'} alt={"facebook"} /> )
+                    :
+                    click.gadget.includes("instagram") ? ( <Image src={'ig.svg'} alt={"instagram"} /> )
+                    :
+                    click.gadget.includes("chrome") ? ( <Image src={'chrome.svg'} alt={"chrome"} /> )
+                    :
+                    click.gadget.includes("safari") ? ( <Image src={'safari.svg'} alt={"safari"} /> )
+                    :
+                    (<Globe width={25} widths={10} />)
+                    }
+                </div>
+                </div>
+            ))}
+        </div>
+
+        {/* showed click when opened */}
+        {isOpenLiveClick && selectedLiveClick && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 backdrop-blur-sm p-4 sm:p-6">
+            <div
+                className="
+                bg-white dark:bg-zinc-900 rounded-3xl shadow-xl
+                max-w-sm w-full p-6 relative animate-fade-in-scale
+                max-h-[90vh] overflow-y-auto
+                "
+                style={{ animationTimingFunction: "cubic-bezier(0.4, 0, 0.2, 1)" }}
+            >
+                {/* Close button */}
+                <button
+                onClick={closeInfoLiveClick}
+                className="absolute top-4 right-4 p-2 rounded-full hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors"
+                aria-label="Close modal"
+                >
+                <X className="w-5 h-5 text-red-600 dark:text-zinc-300" />
+                </button>
+
+                {/* Information Dialog */}
+                <h2 className="text-xl font-mono mb-6 text-zinc-900 dark:text-white flex items-center gap-2">
+                <FcFlashOn />
+                Click: {whatIsMyIP?.country}
+                </h2>
+
+                {/* Details list */}
+                <div className="space-y-4 text-zinc-700 dark:text-zinc-300 text-sm">
+                {/* User */}
+                <div className="flex items-center space-x-2">
+                    <User className="w-4 h-4 text-blue-500" />
+                    <span className="font-semibold break-words">{selectedLiveClick?.user}</span>
+                </div>
+
+                {/* IP */}
+                <div className="flex items-center space-x-2">
+                    <Wifi className="w-4 h-4 text-green-500" />
+                    <span className="font-mono break-words">{selectedLiveClick.ip}</span>
+                </div>
+
+                {/* Device */}
+                <div className="flex items-center space-x-2">
+                    <Cpu className="w-4 h-4 text-indigo-500" />
+                    <span className="font-serif break-words">{selectedLiveClick.gadget.toUpperCase()}</span>
+                </div>
+
+                {/* Full info */}
+                <div className="flex items-center space-x-2">
+                    <MapPin className="w-4 h-4 text-red-500" />
+                    <span className="font-mono break-words">
+                    {whatIsMyIP?.city}, {whatIsMyIP?.region}, {whatIsMyIP?.postal}
+                    </span>
+                </div>
+
+                {/* ISP */}
+                <div className="flex items-center space-x-2">
+                    <EarthLock className="w-4 h-4 text-red-500" />
+                    <span className="break-words">{whatIsMyIP?.connection.isp}</span>
+                </div>
+
+                {/* User Agent */}
+                <div className="flex items-center space-x-2">
+                    <span className="font-mono break-words">{selectedLiveClick.source}</span>
+                </div>
+                </div>
+            </div>
+            </div>
+        )}
+        </div>
         </Card>
 
         {/* Top Users */}
@@ -564,7 +547,6 @@ export function RealtimeTab({ data }: { data: DashboardData }) {
           </CardContent>
         </Card>
       </div>
-      
     </div>
   );
 }

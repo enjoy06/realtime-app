@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { Timestamp } from "firebase-admin/firestore";
+import { Timestamp, FieldValue } from "firebase-admin/firestore";
 import { db } from "@/lib/firebaseAdmin";
 import axios from "axios";
 
@@ -21,14 +21,14 @@ export default async function handler(
     return res.status(405).json({ error: `Method ${req.method} Not Allowed` });
   }
 
-  const { click, earn } = req.query;
+  const { leads, earn } = req.query;
 
-  if (!click || !earn) {
-    return res.status(400).json({ error: "Missing click or earning parameter" });
+  if (!leads || !earn) {
+    return res.status(400).json({ error: "Missing parameter!" });
   }
 
   try {
-    const decodedClick = Buffer.from(click as string, "base64").toString("utf-8");
+    const decodedClick = Buffer.from(leads as string, "base64").toString("utf-8");
     const parts = decodedClick.split("|");
 
     if (parts.length < 4) {
@@ -37,7 +37,7 @@ export default async function handler(
         .json({ error: "Invalid click format. Expected 4 parts separated by |" });
     }
 
-    const [sub, country, useragent, ip] = parts;
+    const [sub, country, ip, useragent] = parts;
     const earningValue = Number(earn);
 
     if (isNaN(earningValue)) {
@@ -72,35 +72,25 @@ export default async function handler(
       return res.status(500).json({ error: "Failed to save lead data" });
     }
 
-    // Update user_summary
-    console.log("Fetching user_summary for user:", sub);
-    const summarySnapshot = await db
-      .collection("user_summary")
-      .where("user", "==", sub)
-      .limit(1)
-      .get();
+    // Create consistent doc ID for summary
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const dateString = today.toISOString().split("T")[0];
+    const summaryId = `${sub}_${dateString}`;
+    const summaryRef = db.collection("user_summary").doc(summaryId);
 
-    if (summarySnapshot.empty) {
-      console.log("No summary found, creating new for user:", sub);
-      await db.collection("user_summary").add({
+    console.log(`Updating summary ${summaryId} with +${earningValue}`);
+
+    await summaryRef.set(
+      {
         user: sub,
-        total_earning: earningValue,
-        total_click: 0,
+        created_date: dateString,
+        total_earning: FieldValue.increment(earningValue),
+        total_click: FieldValue.increment(1),
         created_at: Timestamp.now(),
-      });
-    } else {
-      const doc = summarySnapshot.docs[0];
-      const data = doc.data();
-      const newTotalEarning = (data.total_earning || 0) + earningValue;
-
-      console.log(
-        `Updating user_summary doc ${doc.id} total_earning: ${data.total_earning} + ${earningValue} = ${newTotalEarning}`
-      );
-
-      await db.collection("user_summary").doc(doc.id).update({
-        total_earning: newTotalEarning,
-      });
-    }
+      },
+      { merge: true }
+    );
 
     // Trigger realtime update
     await axios.post(`${process.env.NEXT_PUBLIC_SOCKET_URL}/broadcast`, {
@@ -114,8 +104,9 @@ export default async function handler(
     return res.status(200).json({ message: "Lead received successfully" });
   } catch (error: any) {
     console.error("Error in API:", error);
-    return res
-      .status(400)
-      .json({ error: "Invalid base64 in click parameter", errorDetails: error.message });
+    return res.status(400).json({
+      error: "Invalid base64 in leads parameter",
+      errorDetails: error.message,
+    });
   }
 }
