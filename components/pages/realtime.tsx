@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { io } from "socket.io-client";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { RealtimeTab } from "./Dashboardtest";
-import { StatsRealtime } from "./Stats";
+import { StatsRealtime } from "./stats";
 import { SummaryRealtime } from "./summary";
 import { fetchDashboardData } from "@/lib/data";
 import { fetchLiveClicks } from "@/lib/get_klik";
