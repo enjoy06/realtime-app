@@ -15,6 +15,7 @@ export async function fetchClicks() {
   const clicks: {
     id: string;
     user: string;
+    network: string;
     country: any;
     source: any;
     gadget: string;
@@ -27,6 +28,7 @@ export async function fetchClicks() {
     clicks.push({
       id: doc.id,
       user: data.user,
+      network: data.network,
       country: data.country,
       source: data.source,
       gadget: data.gadget,
@@ -49,6 +51,7 @@ export async function fetchLiveClicks() {
   const clicks: {
     id: string;
     user: string;
+    network: string;
     country: any;
     source: any;
     gadget: string;
@@ -61,6 +64,7 @@ export async function fetchLiveClicks() {
     clicks.push({
       id: doc.id,
       user: data.user,
+      network: data.network,
       country: data.country,
       source: data.source,
       gadget: data.gadget,

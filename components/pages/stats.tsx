@@ -5,11 +5,13 @@ import { ClientDate } from "./clientDate";
 import { FaComputer } from "react-icons/fa6";
 import { RiSmartphoneLine } from "react-icons/ri";
 import { useState } from "react";
+import Image from "next/image";
+import { Globe } from "lucide-react";
 
-// Types
 interface Click {
   id: string;
   user: string;
+  network: string;
   country: string;
   source: string;
   gadget: string;
@@ -48,12 +50,13 @@ export function StatsRealtime({ data }: { data: DashboardData }) {
       <table className="table-auto min-w-full text-sm text-left divide-y divide-zinc-200 dark:divide-zinc-700">
         <thead className="bg-gradient-to-r from-blue-500 via-purple-500 to-amber-500 text-white uppercase text-xs font-semibold tracking-wide">
           <tr>
-            <th className="px-4 py-3 whitespace-nowrap">user</th>
-            <th className="px-4 py-3 whitespace-nowrap">From</th>
-            <th className="px-4 py-3 whitespace-nowrap">S</th>
-            <th className="px-4 py-3 whitespace-nowrap max-w-[250px]">UA</th>
-            <th className="px-4 py-3 whitespace-nowrap">IP</th>
-            <th className="px-4 py-3 whitespace-nowrap hidden sm:table-cell">Time</th>
+            <th className="px-3 py-1 whitespace-nowrap">user</th>
+            <th className="px-4 py-1 whitespace-nowrap">Flag</th>
+            <th className="px-2 py-1 whitespace-nowrap">N</th>
+            <th className="px-5 py-1 whitespace-nowrap">S</th>
+            <th className="px-4 py-1 whitespace-nowrap max-w-[250px]">UA</th>
+            <th className="px-4 py-1 whitespace-nowrap">IP</th>
+            <th className="px-4 py-1 whitespace-nowrap hidden sm:table-cell">Time</th>
           </tr>
         </thead>
          <tbody>
@@ -67,12 +70,12 @@ export function StatsRealtime({ data }: { data: DashboardData }) {
                 } hover:bg-blue-100 dark:hover:bg-blue-900`}
               >
                 {/* User */}
-                <td className="px-4 py-3 font-medium text-zinc-900 dark:text-zinc-100 whitespace-nowrap">
+                <td className="px-2 py-1 font-mono text-zinc-900 dark:text-zinc-100 whitespace-nowrap">
                   {click.user}
                 </td>
 
                 {/* Country */}
-                <td className="px-4 py-3 flex items-center gap-2">
+                <td className="px-4 py-1 flex items-center gap-2">
                   <ReactCountryFlag
                     countryCode={click.country || "XX"}
                     svg
@@ -86,8 +89,24 @@ export function StatsRealtime({ data }: { data: DashboardData }) {
                   />
                 </td>
 
+                {/* network */}
+                <td className="px-1 py-1 text-center text-xl text-zinc-600 dark:text-zinc-400">
+                {click.network.includes('IMONETIZEIT') ? 
+                    ( <Image src={'/network/imo.ico'} alt={"iMonetizeIt"} width={17} height={10} /> ) 
+                    :
+                click.network.includes('LOSPOLLOS') ? 
+                    ( <Image src={'/network/trafee.png'} alt={"Trafee"} width={17} height={10} /> ) 
+                    :
+                click.network.includes('TORAZZO') ? 
+                    ( <Image src={'/network/lospollos.png'} alt={"Lospollos"} width={17} height={10} /> ) 
+                    : (
+                        <Globe />
+                    ) 
+                }
+                </td>
+
                 {/* Device */}
-                <td className="px-4 py-3 text-center text-xl text-zinc-600 dark:text-zinc-400">
+                <td className="px-4 py-1 text-center text-xl text-zinc-600 dark:text-zinc-400">
                   {click.source.match(
                     /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/
                   ) ? (
@@ -99,7 +118,7 @@ export function StatsRealtime({ data }: { data: DashboardData }) {
 
                 {/* Source */}
                 <td
-                  className="px-4 py-3 max-w-[250px] truncate text-zinc-700 dark:text-zinc-300 text-sm select-text"
+                  className="px-4 py-1 max-w-[250px] truncate text-zinc-700 dark:text-zinc-300 text-sm select-text"
                   title={click.source}
                 >
                   {click.source.length > 75
@@ -108,12 +127,12 @@ export function StatsRealtime({ data }: { data: DashboardData }) {
                 </td>
 
                 {/* IP */}
-                <td className="px-4 py-3 font-mono text-zinc-800 dark:text-zinc-200 whitespace-nowrap">
+                <td className="px-4 py-1 font-mono text-zinc-800 dark:text-zinc-200 whitespace-nowrap">
                   {click.ip}
                 </td>
 
                 {/* Time */}
-                <td className="px-4 py-3 text-zinc-600 dark:text-zinc-400 whitespace-nowrap text-sm hidden sm:table-cell">
+                <td className="px-4 py-1 text-zinc-600 dark:text-zinc-400 whitespace-nowrap text-sm hidden sm:table-cell">
                   <ClientDate date={click.created_at} />
                 </td>
               </tr>

@@ -37,6 +37,7 @@ export async function fetchDashboardData() {
     id: string;
     userId: string;
     country: any;
+    network: string;
     useragent: any;
     ip: any;
     earning: any;
@@ -59,6 +60,7 @@ export async function fetchDashboardData() {
         id: doc.id,
         userId: data.userId,
         country: data.country,
+        network: data.network,
         useragent: data.useragent,
         ip: data.ip,
         earning: data.earning || 0,
@@ -102,6 +104,7 @@ export async function fetchDashboardData() {
     return {
       id: doc.id,
       user: data.user,
+      network: data.network,
       country: data.country,
       source: data.source,
       gadget: data.gadget,
@@ -119,6 +122,7 @@ export async function fetchDashboardData() {
     return {
       id: doc.id,
       user: data.user,
+      network: data.network,
       country: data.country,
       source: data.source,
       gadget: data.gadget,

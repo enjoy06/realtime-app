@@ -5,6 +5,7 @@ import axios from "axios";
 
 interface LeadData {
   userId: string;
+  network: string;
   earning: number;
   country?: string;
   useragent?: string;
@@ -29,15 +30,15 @@ export default async function handler(
 
   try {
     const decodedClick = Buffer.from(leads as string, "base64").toString("utf-8");
-    const parts = decodedClick.split("|");
+    const parts = decodedClick.split(",");
 
-    if (parts.length < 4) {
+    if (parts.length < 5) {
       return res
         .status(400)
-        .json({ error: "Invalid click format. Expected 4 parts separated by |" });
+        .json({ error: "Invalid lead id format. Expected 5 parts separated by ," });
     }
 
-    const [sub, country, ip, useragent] = parts;
+    const [sub, country, ip, useragent, network] = parts;
     const earningValue = Number(earn);
 
     if (isNaN(earningValue)) {
@@ -59,6 +60,7 @@ export default async function handler(
 
     const leadData: LeadData = {
       userId: sub,
+      network: network,
       earning: earningValue,
       country: country || undefined,
       useragent: useragent || undefined,

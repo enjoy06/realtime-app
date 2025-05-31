@@ -74,6 +74,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     res.status(400).json({error: 'Missing sub or network.'});
   }
 
+  const networkId = 
+        network.includes('IMO') ? 'IMONETIZEIT' :  
+        network.includes('LP') ? 'TORAZZO' :
+        network.includes('TF') ? 'LOSPOLLOS' : 
+        network;
+        
   const cekUser = await write
     .collection('users')
     .where('username', '==', sub)
@@ -96,8 +102,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     : "default";
 
   const gadget = isMobile ? 'WAP' : 'WEB';
-  //const encoded = Buffer.from(`${sub}|${await getCountry()}|${gadget}|${ip}|${network}`).toString('base64');
-  const encoded = Buffer.from(`${sub}|${await getCountry()}|${ip}|${gadget}|${network}`).toString('base64');
+  //const encoded = Buffer.from(`${sub}|${await getCountry()}|${ip}|${gadget}|${networkId}`).toString('base64');
+  const rawEncoded = Buffer.from(`${sub},${await getCountry()},${ip},${gadget},${networkId}`).toString('base64');
+  const encoded = rawEncoded.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 
   try {
     // Kirim ke socket
@@ -111,7 +118,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const clickPayload: ClickData = {
       user: sub,
-      network: network,
+      network: networkId,
       country: await getCountry(),
       source: userAgent,
       gadget: sourceType,
